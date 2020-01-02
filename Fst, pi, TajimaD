@@ -1,0 +1,127 @@
+library(data.table)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+
+head(dat2)
+test <- fread("test.Fst.windowed.weir.fst",header = T)
+head(test)
+class(test)
+test <- mutate(test,TYPE=factor(rep("test",length(test$CHROM))))
+head(test)
+class(test)
+
+test$CHROM <- factor(test$CHROM,levels = c(1:39))
+test$WEIGHTED_FST[which(test$WEIGHTED_FST<0)]=0
+test$BIN_START=test$BIN_START/1E6
+test$BIN_END=test$BIN_END/1E6
+###############################################
+#i=11
+
+opar<-par(no.readonly = T)
+par(mfrow=c(3,2))
+for (i in 1:6){
+
+fst <- ggplot(subset(test,as.numeric(test$CHROM)==i)) +
+  geom_smooth(aes(x=BIN_START,y=WEIGHTED_FST,color=TYPE),method = loess, span=0.01)+
+  facet_wrap(~CHROM,ncol=3,scales="free_x") + 
+   ggtitle(paste("test for chri",i,sep="")) +
+  xlab(paste("Mb Chromosome ",i,sep="")) +
+  ylab(expression(F[ST])) +
+  theme_bw()
+png(paste("fst.",i,".png",sep=""),750,500)
+print(fst)
+par(mfrow=c(3,2))
+
+dev.off()
+
+
+}
+#################################################3
+attach(mtcars)
+opar<-par(no.readonly = T)
+par(mfrow=c(2,2))
+plot(wt,mpg,main="t1")
+plot(wt,disp,main="t2")
+hist(wt,mian="t3")
+par(opar)
+##########################################
+library(data.table)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+
+head(dat2)
+test <- fread("test.Tajima.D",header = T)
+test <- mutate(test,TYPE=factor(rep("test",length(test$CHROM))))
+test$CHROM <- factor(test$CHROM,levels = c(1:39))
+#test$WEIGHTED_FST[which(test$WEIGHTED_FST<0)]=0
+test$BIN_START=test$BIN_START/1E6
+####################################
+opar<-par(no.readonly = T)
+par(mfrow=c(3,2))
+for (i in 1){
+  
+  Td <- ggplot(subset(test,as.numeric(test$CHROM)==i)) +
+    geom_smooth(aes(x=BIN_START,y=TajimaD,color=TYPE),method = loess, span=0.01)+
+    facet_wrap(~CHROM,ncol=3,scales="free_x") + 
+    ggtitle(paste("test for chr",i,sep="")) +
+    xlab(paste("Mb Chromosome ",i,sep="")) +
+    ylab("TajimaD") +
+    theme_bw()
+  png(paste("TajimaD.",i,".png",sep=""),750,500)
+  print(fst)
+  par(mfrow=c(3,2))
+  
+  dev.off()
+  
+  
+}
+
+
+
+##################################333
+library(data.table)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+
+
+#test <- read.table('test.windowed.pi', header=TRUE)
+test <- fread("test.windowed.pi",header = T)
+head(test)
+test <- mutate(test,TYPE=factor(rep("test",length(test$CHROM))))
+test$CHROM <- factor(test$CHROM,levels = c(1:39))
+#test$WEIGHTED_FST[which(test$WEIGHTED_FST<0)]=0
+test$BIN_START=test$BIN_START/1E6
+####################################
+opar<-par(no.readonly = T)
+par(mfrow=c(3,2))
+for (i in 1){
+  
+  pi <- ggplot(subset(test,as.numeric(test$CHROM)==i)) +
+    geom_smooth(aes(x=BIN_START,y=PI,color=TYPE),method = loess, span=0.01)+
+    facet_wrap(~CHROM,ncol=3,scales="free_x") + 
+    ggtitle(paste("test for chr",i,sep="")) +
+    xlab(paste("Mb Chromosome ",i,sep="")) +
+    ylab("Pi") +
+    theme_bw()
+  
+  png(paste("Pi.",i,".png",sep=""),750,500)
+ 
+  par(mfrow=c(3,2))
+  print(pi)
+  dev.off()
+  
+  
+}
+
+#dat <- test[which(test$CHROM==1),]
+#plot(dat$PI~dat$BIN_START, xlab=paste("Mb Chromosome ","1",sep=""), ylab="Pi")
+dev.off()
+########################################
+library(ggplot2)
+mydata<-read.table("test.Tajima.D",header = T) #其他文件只需要换一下名字就好
+mydata1<-na.omit(mydata)
+ggplot(mydata1, aes(x=BIN_START/1000000,y=TajimaD,group=factor(CHROM),colour=CHROM))+geom_line()+facet_wrap(mydata1$CHROM)+xlab("Physical distance(Mb)")+ylab("Tajima's D")+theme(legend.position = "none")
+a<-mydata1[sample(nrow(mydata1), 1000), ] #随机选取其中的1000行数据，这个Hardy-Weinberg平衡文件需要的，因为结果太多，无法利用ggplot绘出全部结果
